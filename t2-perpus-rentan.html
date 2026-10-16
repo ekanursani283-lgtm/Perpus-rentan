@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Login Perpustakaan - Rentan</title>
+</head>
+<body>
+<h2>Login Petugas Perpustakaan (RENTAN)</h2>
+<p>Akun fiktif tersedia: <b>petugas1 / pustaka2024</b> dan <b>petugas2 / bacabuku99</b></p>
+
+<form id="formLogin">
+  <input type="text" id="usernameInput" placeholder="Nama pengguna" required>
+  <input type="text" id="passwordInput" placeholder="Sandi" required>
+  <button type="submit">Login</button>
+</form>
+
+<h3>Kueri yang terbentuk</h3>
+<pre id="tampilKueri"></pre>
+
+<h3>Hasil Login</h3>
+<pre id="hasilLogin"></pre>
+
+<script>
+// tabel fiktif petugas perpustakaan
+let dataPetugas = [
+  { namaPengguna: "petugas1", sandi: "pustaka2024", peran: "admin" },
+  { namaPengguna: "petugas2", sandi: "bacabuku99", peran: "staf" }
+];
+
+document.getElementById('formLogin').addEventListener('submit', function(e){
+  e.preventDefault();
+  const uname = document.getElementById('usernameInput').value;
+  const pass = document.getElementById('passwordInput').value;
+
+  // RENTAN: merakit ekspresi kueri langsung dari input pengguna (mensimulasikan string SQL)
+  const ekspresiKueri = `namaPengguna === "${uname}" && sandi === "${pass}"`;
+  document.getElementById('tampilKueri').textContent = 
+    `SELECT * FROM petugas WHERE ${ekspresiKueri.replace(/===/g,'=').replace(/&&/g,'AND')}`;
+
+  let hasil = null;
+  try {
+    // mensimulasikan query builder yang mengeksekusi ekspresi gabungan (analog SQL injection)
+    for (const baris of dataPetugas) {
+      const namaPengguna = baris.namaPengguna;
+      const sandi = baris.sandi;
+      if (eval(ekspresiKueri)) { // <- titik rentan: input pengguna dieksekusi sebagai bagian logika
+        hasil = baris;
+        break;
+      }
+    }
+  } catch(err) {
+    hasil = null;
+  }
+
+  const out = document.getElementById('hasilLogin');
+  if (hasil) {
+    out.textContent = `AKSES DITERIMA sebagai ${hasil.namaPengguna} (peran: ${hasil.peran})`;
+  } else {
+    out.textContent = 'Akses ditolak: kombinasi salah';
+  }
+});
+</script>
+</body>
+</html>
